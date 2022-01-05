@@ -11,14 +11,14 @@ function createWindow () {
       preload: path.join(__dirname, 'preload.js')
     }
   });
-  setupView(mainWindow, 'https://electronjs.org');
-  setupViewLocal(mainWindow, 'local.html');
+  setupView('https://electronjs.org');
+  setupViewLocal('local.html');
   mainWindow.loadFile('tabbar.html');
 
   ['resize'].forEach(e => {
     mainWindow.on(e, () => {
-      mainWindow.getBrowserViews().forEach((view, index) => {
-        resizeView(view, index);
+      mainWindow.getBrowserViews().forEach((view) => {
+        resizeView(view);
       })
     });
   });
@@ -26,20 +26,20 @@ function createWindow () {
   createMenu();
 }
 
-function setupView(win, url) {
+function setupView(url) {
   const view = new BrowserView();
-  win.addBrowserView(view);
+  mainWindow.addBrowserView(view);
   resizeView(view);
   view.webContents.loadURL(url);
 }
 
-function setupViewLocal(win, file) {
+function setupViewLocal(file) {
   const view = new BrowserView({
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'local_preload.js')
     }
   });
-  win.addBrowserView(view);
+  mainWindow.addBrowserView(view);
   resizeView(view);
   view.webContents.loadFile(file);
   view.setBackgroundColor('white');
@@ -90,15 +90,15 @@ function createMenu() {
   Menu.setApplicationMenu(menu);
 }
 
-ipcMain.on('tab1', e => {
+ipcMain.handle('tab1', e => {
   mainWindow.setTopBrowserView(mainWindow.getBrowserViews()[0]);
 });
 
-ipcMain.on('tab2', e => {
+ipcMain.handle('tab2', e => {
   mainWindow.setTopBrowserView(mainWindow.getBrowserViews()[1]);
 });
 
-ipcMain.on('switch-to-electronjs', e => {
-  console.log('from local.js');
+ipcMain.handle('switch-to-electronjs', (e, message) => {
+  console.log('from local.js', message);
   mainWindow.setTopBrowserView(mainWindow.getBrowserViews()[0]);
 });
