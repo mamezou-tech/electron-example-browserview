@@ -10,6 +10,6 @@
   "author": "kondoumh",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^16.0.5"
+    "electron": "^21.3.0"
   }
 }
