@@ -15,12 +15,10 @@ function createWindow () {
   setupViewLocal('local.html');
   mainWindow.loadFile('tabbar.html');
 
-  ['resize'].forEach(e => {
-    mainWindow.on(e, () => {
-      mainWindow.getBrowserViews().forEach((view) => {
-        resizeView(view);
-      })
-    });
+  mainWindow.on('resize', () => {
+    mainWindow.getBrowserViews().forEach((view) => {
+      resizeView(view);
+    })
   });
 
   createMenu();
@@ -48,7 +46,7 @@ function setupViewLocal(file) {
 
 function resizeView(view) {
   const bound = mainWindow.getBounds();
-  view.setBounds({ x: 0, y: 30, width: bound.width, height: bound.height - 30 });
+  view.setBounds({ x: 0, y: 90, width: bound.width, height: bound.height - 90 });
 }
 
 app.whenReady().then(() => {
