@@ -11,9 +11,12 @@ function createWindow () {
       preload: path.join(__dirname, 'preload.js')
     }
   });
-  setupView('https://electronjs.org');
-  setupViewLocal('local.html');
   mainWindow.loadFile('tabbar.html');
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    setupView('https://electronjs.org');
+    setupViewLocal('local.html');
+  });
 
   mainWindow.on('resize', () => {
     mainWindow.getBrowserViews().forEach((view) => {
@@ -46,7 +49,8 @@ function setupViewLocal(file) {
 
 function resizeView(view) {
   const bound = mainWindow.getBounds();
-  view.setBounds({ x: 0, y: 90, width: bound.width, height: bound.height - 90 });
+  const height = process.platform !== 'win32' ? 60 : 40
+  view.setBounds({ x: 0, y: height, width: bound.width, height: bound.height - height });
 }
 
 app.whenReady().then(() => {
