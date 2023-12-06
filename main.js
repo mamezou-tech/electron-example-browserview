@@ -92,15 +92,23 @@ function createMenu() {
   Menu.setApplicationMenu(menu);
 }
 
+function switchView(url) {
+  const views = mainWindow.getBrowserViews().filter(view => view.webContents.getURL().includes(url));
+  console.assert(views.length === 1);
+  mainWindow.setTopBrowserView(views[0]);
+}
+
 ipcMain.handle('tab1', e => {
-  mainWindow.setTopBrowserView(mainWindow.getBrowserViews()[0]);
+  console.log('tab1');
+  switchView('electronjs');
 });
 
 ipcMain.handle('tab2', e => {
-  mainWindow.setTopBrowserView(mainWindow.getBrowserViews()[1]);
+  console.log('tab2');
+  switchView('local.html');
 });
 
 ipcMain.handle('switch-to-electronjs', (e, message) => {
   console.log('from local.js', message);
-  mainWindow.setTopBrowserView(mainWindow.getBrowserViews()[0]);
+  switchView('electronjs');
 });
