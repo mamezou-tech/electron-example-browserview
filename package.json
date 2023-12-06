@@ -2,7 +2,8 @@
   "name": "electron-example-browserview",
   "version": "0.1.0",
   "description": "Example of Electron app that registers and switches between multiple BrowserViews.",
-  "main": "main.js",
+  "type": "module",
+  "main": "main.mjs",
   "scripts": {
     "start": "electron ."
   },
