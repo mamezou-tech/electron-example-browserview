@@ -1,14 +1,18 @@
-const { app, BrowserView, BrowserWindow, Menu, ipcMain } = require('electron');
-const path = require('path');
+import { app, BrowserView, BrowserWindow, Menu, ipcMain } from 'electron';
+import { fileURLToPath } from "node:url";
+import path from 'node:path';
 
 let mainWindow;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function createWindow () {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.mjs')
     }
   });
   mainWindow.loadFile('tabbar.html');
@@ -37,7 +41,7 @@ function setupView(url) {
 function setupViewLocal(file) {
   const view = new BrowserView({
     webPreferences: {
-      preload: path.join(__dirname, 'local_preload.js')
+      preload: path.join(__dirname, 'local_preload.mjs')
     }
   });
   mainWindow.addBrowserView(view);
@@ -109,6 +113,6 @@ ipcMain.handle('tab2', e => {
 });
 
 ipcMain.handle('switch-to-electronjs', (e, message) => {
-  console.log('from local.js', message);
+  console.log('from local.mjs', message);
   switchView('electronjs');
 });
