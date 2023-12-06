@@ -12,7 +12,7 @@ function createWindow () {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.mjs')
+      preload: path.join(__dirname, 'preload.js')
     }
   });
   mainWindow.loadFile('tabbar.html');
@@ -41,7 +41,7 @@ function setupView(url) {
 function setupViewLocal(file) {
   const view = new BrowserView({
     webPreferences: {
-      preload: path.join(__dirname, 'local_preload.mjs')
+      preload: path.join(__dirname, 'local_preload.js')
     }
   });
   mainWindow.addBrowserView(view);
