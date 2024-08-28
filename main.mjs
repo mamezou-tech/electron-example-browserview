@@ -1,6 +1,7 @@
-import { app, BrowserView, BrowserWindow, Menu, ipcMain } from 'electron';
+import { app, WebContentsView, BaseWindow, Menu, ipcMain } from 'electron';
 import { fileURLToPath } from "node:url";
 import path from 'node:path';
+import { assert } from 'node:console';
 
 let mainWindow;
 
@@ -8,60 +9,65 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 function createWindow () {
-  mainWindow = new BrowserWindow({
+  mainWindow = new BaseWindow({
     width: 800,
     height: 600,
+  });
+  const view = new WebContentsView({
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'tabbar_preload.js')
     }
   });
-  mainWindow.loadFile('tabbar.html');
-
-  mainWindow.webContents.on('did-finish-load', () => {
+  view.webContents.loadFile('tabbar.html');
+  mainWindow.contentView.addChildView(view);
+  view.setBounds({ x: 0, y: 0, width: 800, height: 40 });
+  
+  view.webContents.on('did-finish-load', () => {
+    // view.webContents.openDevTools({ mode: 'detach' });
     setupView('https://electronjs.org');
     setupViewLocal('local.html');
   });
 
   mainWindow.on('resize', () => {
-    mainWindow.getBrowserViews().forEach((view) => {
-      resizeView(view);
-    })
+    const views = mainWindow.contentView.children;
+    assert(views.length === 3);
+    resizeViews(views[1], views[2]);
   });
 
   createMenu();
 }
 
 function setupView(url) {
-  const view = new BrowserView();
-  mainWindow.addBrowserView(view);
-  resizeView(view);
+  const view = new WebContentsView();
+  resizeViews(view);
   view.webContents.loadURL(url);
+  mainWindow.contentView.addChildView(view);
 }
 
 function setupViewLocal(file) {
-  const view = new BrowserView({
+  const view = new WebContentsView({
     webPreferences: {
       preload: path.join(__dirname, 'local_preload.js')
     }
   });
-  mainWindow.addBrowserView(view);
-  resizeView(view);
+  resizeViews(view);
   view.webContents.loadFile(file);
   view.setBackgroundColor('white');
+  mainWindow.contentView.addChildView(view);
   // view.webContents.openDevTools({ mode: 'detach' });
 }
 
-function resizeView(view) {
+function resizeViews(...views) {
   const bound = mainWindow.getBounds();
   const height = process.platform !== 'win32' ? 60 : 40
-  view.setBounds({ x: 0, y: height, width: bound.width, height: bound.height - height });
+  views.forEach(view => view.setBounds({ x: 0, y: height, width: bound.width, height: bound.height - height }));
 }
 
 app.whenReady().then(() => {
   createWindow();
 
   app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (mainWindow.contentView.children.length === 0) createWindow();
   });
 });
 
@@ -97,9 +103,14 @@ function createMenu() {
 }
 
 function switchView(url) {
-  const views = mainWindow.getBrowserViews().filter(view => view.webContents.getURL().includes(url));
+  const views = mainWindow.contentView.children.filter(view => view.webContents.getURL().includes(url));
   console.assert(views.length === 1);
-  mainWindow.setTopBrowserView(views[0]);
+  setTopWebContentsView(views[0]);
+}
+
+function setTopWebContentsView(view) {
+  mainWindow.contentView.removeChildView(view);
+  mainWindow.contentView.addChildView(view); 
 }
 
 ipcMain.handle('tab1', e => {
