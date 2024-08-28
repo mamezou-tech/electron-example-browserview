@@ -1,6 +1,9 @@
 # electron-example-browserview
 
-Example of Electron app that registers and switches between multiple BrowserViews.
+Example of Electron app that registers and switches between multiple WebContentsViews.
+
+> [!Note]
+> This repository was originally meant to show examples using BrowserView, but since BrowserView has been deprecated in favor of WebContentsView as its replacement, it has now become a repository that shows examples using WebContentsView (even though it still has BrowserView in the repository name).
 
 ## To Use
 
